@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.lang.reflect.Constructor;
 
 import static su.nightexpress.nightcore.util.text.night.wrapper.TagWrappers.*;
 
@@ -220,7 +221,7 @@ public class CrateParticleDialog extends Dialog<Crate> {
             dataParser = nbtHolder -> {
                 Color color = parseColor(nbtHolder);
                 float power = nbtHolder.getFloat(JSON_EXTRA, DEF_POWER);
-                return new Particle.Spell(color, power);
+                return createSpellData(type, color, power);
             };
         }
         else if (type == ItemStack.class) {
@@ -304,5 +305,16 @@ public class CrateParticleDialog extends Dialog<Crate> {
 
         Class<?> type = particle.getDataType();
         return type != Void.class && type != Integer.class && type != Float.class && type != Vibration.class && type != Particle.Trail.class && type != Particle.DustTransition.class;
+    }
+
+    @Nullable
+    private static Object createSpellData(@NotNull Class<?> type, @NotNull Color color, float power) {
+        try {
+            Constructor<?> constructor = type.getDeclaredConstructor(Color.class, float.class);
+            return constructor.newInstance(color, power);
+        }
+        catch (ReflectiveOperationException ignored) {
+            return null;
+        }
     }
 }
