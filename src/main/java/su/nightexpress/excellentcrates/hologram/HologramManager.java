@@ -41,7 +41,8 @@ public class HologramManager extends AbstractManager<CratesPlugin> {
         if (this.detectHandler()) {
             this.addListener(new HologramListener(this.plugin, this));
 
-            this.addAsyncTask(this::tickHolograms, Config.CRATE_HOLOGRAM_UPDATE_INTERVAL.get());
+            // Hologram rendering reads block/world data, so it must stay on the server thread.
+            this.addTask(this::tickHolograms, Config.CRATE_HOLOGRAM_UPDATE_INTERVAL.get());
         }
     }
 
