@@ -59,6 +59,8 @@ import java.util.stream.Collectors;
 
 public class Crate implements ConfigBacked {
 
+    private static final boolean FOLIA = isFolia();
+
     private final CratesPlugin plugin;
     private final Path         filePath;
     private final String       id;
@@ -220,7 +222,7 @@ public class Crate implements ConfigBacked {
         });
 
         this.blockPositions.addAll(config.getStringList("Block.Positions").stream().map(WorldPos::deserialize).toList());
-        if (!Config.isCrateInAirBlocksAllowed()) {
+        if (!FOLIA && !Config.isCrateInAirBlocksAllowed()) {
             this.blockPositions.removeIf(pos -> {
                 Block block = pos.toBlock();
                 return block != null && block.isEmpty();
@@ -909,5 +911,15 @@ public class Crate implements ConfigBacked {
     @Nullable
     public Milestone getNextMilestone(int openings) {
         return this.milestones.stream().filter(milestone -> milestone.getOpenings() > openings).min(Comparator.comparingInt(Milestone::getOpenings)).orElse(null);
+    }
+
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        }
+        catch (ClassNotFoundException ignored) {
+            return false;
+        }
     }
 }
