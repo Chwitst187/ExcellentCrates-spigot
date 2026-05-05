@@ -107,7 +107,7 @@ public class DataManager extends AbstractManager<CratesPlugin> {
             this.plugin.runTaskAsync(task -> action.run());
         }
         catch (UnsupportedOperationException ignored) {
-            action.run();
+            this.plugin.runTask(task -> action.run());
         }
     }
 
